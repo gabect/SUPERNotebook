@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Libreta Escolar Minimalista</title>
+    <style>
+        body {
+            background-color: #4F4E68;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .book {
+            position: relative;
+            width: 80vw;
+            height: 80vh;
+            perspective: 200vw;
+        }
+        .cover {
+            transform: rotateY(0deg);
+            width: 50%;
+            height: 100%;
+            position: absolute;
+            transform-origin: 0 50%;
+            border-radius: 0 5px 5px 0;
+            box-shadow: inset -3px 0px 20px rgba(0, 0, 0, 0.2), 0px 0px 15px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+        .cover.front {
+            left: 50%;
+            z-index: 15;
+        }
+        .cover.back {
+            left: 0;
+            z-index: 1;
+            background-color: #000;
+        }
+        .cover-front, .cover-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+        }
+        .cover-front {
+            background-color: #000;
+            padding: 2rem;
+            box-sizing: border-box;
+            color: white;
+        }
+        .cover-back {
+            transform: rotateY(180deg);
+            background-color: #000;
+        }
+        .page {
+            transform: rotateY(0deg);
+            width: 50%;
+            height: 100%;
+            position: absolute;
+            left: 50%;
+            transform-origin: 0 50%;
+            border-radius: 0 5px 5px 0;
+            box-shadow: inset -3px 0px 20px rgba(0, 0, 0, 0.2), 0px 0px 15px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+        .page-front, .page-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            background-color: #e9e6c4;
+        }
+        .page-back {
+            transform: rotateY(180deg);
+        }
+        .turn {
+            animation: bookCover 3s forwards;
+        }
+        .open {
+            animation: bookOpen 3s forwards;
+        }
+        @keyframes bookCover {
+            30% { z-index: 999; }
+            100% { transform: rotateY(-180deg); }
+        }
+        @keyframes bookOpen {
+            0% { transform: rotateY(-180deg); }
+            30% { z-index: 999; }
+            100% { transform: rotateY(0deg); }
+        }
+        .label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 1rem;
+            border: 1px solid black;
+            color: black;
+            text-align: center;
+        }
+        .label button {
+            margin: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+        .writing-area {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        .text-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            padding-top: 30px;
+            padding-left: 60px;
+            padding-right: 20px;
+            font-family: monospace;
+            font-size: 16px;
+            outline: none;
+        }
+        .lined {
+            background: linear-gradient(to bottom, white 29px, #00b0d7 1px);
+            background-size: 100% 30px;
+        }
+        .lined::before {
+            content: '';
+            display: block;
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            left: 40px;
+            height: 100%;
+            width: 1px;
+            background: #db4034;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="book">
+        <div class="cover back"></div>
+        <div class="page" id="page1" style="z-index:14">
+            <div class="page-front">
+                <div class="writing-area">
+                    <div class="text-area lined" contenteditable="true"></div>
+                    <canvas id="drawing-canvas1"></canvas>
+                </div>
+            </div>
+            <div class="page-back">
+                <div class="lined"></div>
+            </div>
+        </div>
+        <div class="page" id="page2" style="z-index:13">
+            <div class="page-front">
+                <div class="writing-area">
+                    <div class="text-area lined" contenteditable="true"></div>
+                    <canvas id="drawing-canvas2"></canvas>
+                </div>
+            </div>
+            <div class="page-back">
+                <div class="lined"></div>
+            </div>
+        </div>
+        <div class="page" id="page3" style="z-index:12">
+            <div class="page-front">
+                <div class="writing-area">
+                    <div class="text-area lined" contenteditable="true"></div>
+                    <canvas id="drawing-canvas3"></canvas>
+                </div>
+            </div>
+            <div class="page-back">
+                <div class="lined"></div>
+            </div>
+        </div>
+        <div class="page" id="page4" style="z-index:11">
+            <div class="page-front">
+                <div class="writing-area">
+                    <div class="text-area lined" contenteditable="true"></div>
+                    <canvas id="drawing-canvas4"></canvas>
+                </div>
+            </div>
+            <div class="page-back">
+                <div class="lined"></div>
+            </div>
+        </div>
+        <div class="page" id="page5" style="z-index:10">
+            <div class="page-front">
+                <div class="writing-area">
+                    <div class="text-area lined" contenteditable="true"></div>
+                    <canvas id="drawing-canvas5"></canvas>
+                </div>
+            </div>
+            <div class="page-back">
+                <div class="lined"></div>
+            </div>
+        </div>
+        <div class="cover front">
+            <div class="cover-front">
+                <div class="label">
+                    <button id="google-login">Iniciar con Google</button>
+                    <button id="facebook-login">Iniciar con Facebook</button>
+                    <button id="apple-login">Iniciar con Apple</button>
+                    <button id="email-login">Iniciar con Email</button>
+                    <div id="email-form" style="display:none;">
+                        <input type="email" id="email" placeholder="Email" required>
+                        <input type="password" id="password" placeholder="Contraseña" required>
+                        <button id="sign-in">Entrar</button>
+                        <button id="sign-up">Registrarse</button>
+                    </div>
+                </div>
+            </div>
+            <div class="cover-back"></div>
+        </div>
+    </div>
+    <script type="module">
+        // Import Firebase SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, OAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Tu configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBONxQhBFxWngb630sCVGRY-UP7U9L84J0",
+            authDomain: "libreta-super.firebaseapp.com",
+            projectId: "libreta-super",
+            storageBucket: "libreta-super.firebasestorage.app",
+            messagingSenderId: "909204444666",
+            appId: "1:909204444666:web:0c7c620695cddde0620043",
+            measurementId: "G-NYWM5RRE26"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const frontCover = document.querySelector('.cover.front');
+        const pages = document.querySelectorAll('.page');
+        const pagesArray = Array.from(pages).sort((a, b) => parseInt(b.style.zIndex) - parseInt(a.style.zIndex));
+        let turned = [];
+        let isDrawing = false;
+        let activeCtx = null;
+        let lastX = 0;
+        let lastY = 0;
+        let startX = 0;
+        let isSwiping = false;
+        let saveTimeout = null;
+
+        // Inicializar canvases y listeners
+        pages.forEach((page, index) => {
+            const textArea = page.querySelector('.text-area');
+            const canvas = page.querySelector('canvas');
+            const writingArea = page.querySelector('.writing-area');
+            canvas.width = writingArea.clientWidth;
+            canvas.height = writingArea.clientHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = 'black';
+
+            textArea.addEventListener('pointerdown', (e) => {
+                if (e.pointerType !== 'pen') return;
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                lastX = e.clientX - rect.left;
+                lastY = e.clientY - rect.top;
+                activeCtx = ctx;
+                activeCtx.beginPath();
+                activeCtx.moveTo(lastX, lastY);
+                isDrawing = true;
+                activeCtx.lineWidth = (e.pressure || 0.5) * 5 + 1;
+            });
+
+            textArea.addEventListener('input', () => debounceSave(index + 1));
+            canvas.addEventListener('pointerup', () => debounceSave(index + 1));
+        });
+
+        document.addEventListener('pointermove', (e) => {
+            if (isDrawing) {
+                const rect = activeCtx.canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                activeCtx.lineWidth = (e.pressure || 0.5) * 5 + 1;
+                activeCtx.lineTo(x, y);
+                activeCtx.stroke();
+                lastX = x;
+                lastY = y;
+            } else if (isSwiping) {
+                // Podrías agregar preview de flip aquí si quieres, pero minimal
+            }
+        });
+
+        document.addEventListener('pointerup', (e) => {
+            if (isDrawing) {
+                isDrawing = false;
+            } else if (isSwiping) {
+                isSwiping = false;
+                const deltaX = e.clientX - startX;
+                if (deltaX < -50) {
+                    turnNext();
+                } else if (deltaX > 50) {
+                    turnPrevious();
+                }
+            }
+        });
+
+        document.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'pen') return;
+            startX = e.clientX;
+            isSwiping = true;
+        });
+
+        // Auth listeners
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                frontCover.classList.add('turn');
+                setTimeout(() => {
+                    frontCover.style.zIndex = 0;
+                    document.querySelector('.label').style.display = 'none';
+                }, 3000);
+                loadPages(user.uid);
+            } else {
+                // Mostrar login
+                frontCover.classList.remove('turn');
+                frontCover.style.zIndex = 15;
+                document.querySelector('.label').style.display = 'block';
+            }
+        });
+
+        // Login buttons
+        document.getElementById('google-login').addEventListener('click', () => {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider);
+        });
+
+        document.getElementById('facebook-login').addEventListener('click', () => {
+            const provider = new FacebookAuthProvider();
+            signInWithPopup(auth, provider);
+        });
+
+        document.getElementById('apple-login').addEventListener('click', () => {
+            const provider = new OAuthProvider('apple.com');
+            signInWithPopup(auth, provider);
+        });
+
+        document.getElementById('email-login').addEventListener('click', () => {
+            document.getElementById('email-form').style.display = 'block';
+        });
+
+        document.getElementById('sign-in').addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            signInWithEmailAndPassword(auth, email, password);
+        });
+
+        document.getElementById('sign-up').addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            createUserWithEmailAndPassword(auth, email, password);
+        });
+
+        function debounceSave(pageNum) {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => savePage(pageNum), 1000);
+        }
+
+        async function savePage(pageNum) {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const page = document.getElementById(`page${pageNum}`);
+            const textArea = page.querySelector('.text-area');
+            const canvas = page.querySelector('canvas');
+
+            const data = {
+                text: textArea.innerHTML,
+                drawing: canvas.toDataURL('image/png')
+            };
+
+            await setDoc(doc(db, 'users', user.uid, 'pages', `page${pageNum}`), data);
+        }
+
+        async function loadPages(uid) {
+            for (let i = 1; i <= 5; i++) {
+                const pageDoc = doc(db, 'users', uid, 'pages', `page${i}`);
+                const docSnap = await getDoc(pageDoc);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const page = document.getElementById(`page${i}`);
+                    const textArea = page.querySelector('.text-area');
+                    const canvas = page.querySelector('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    textArea.innerHTML = data.text;
+
+                    const img = new Image();
+                    img.src = data.drawing;
+                    img.onload = () => {
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    };
+                }
+            }
+        }
+
+        function turnNext() {
+            if (pagesArray.length === 0) return;
+            const pageToTurn = pagesArray.shift();
+            pageToTurn.classList.add('turn');
+            setTimeout(() => {
+                pageToTurn.style.zIndex = turned.length ? Math.min(...turned.map(p => parseInt(p.style.zIndex))) - 1 : 0;
+                turned.push(pageToTurn);
+            }, 3000);
+        }
+
+        function turnPrevious() {
+            if (turned.length === 0) return;
+            const pageToOpen = turned.pop();
+            pageToOpen.classList.add('open');
+            setTimeout(() => {
+                let maxZ = 0;
+                pagesArray.forEach(p => {
+                    let z = parseInt(p.style.zIndex);
+                    if (z > maxZ) maxZ = z;
+                });
+                pageToOpen.style.zIndex = maxZ + 1;
+                pagesArray.unshift(pageToOpen);
+            }, 3000);
+        }
+
+        // Redimensionar canvases
+        window.addEventListener('resize', () => {
+            pages.forEach((page) => {
+                const writingArea = page.querySelector('.writing-area');
+                const canvas = page.querySelector('canvas');
+                // Guardar drawing antes de resize
+                const dataUrl = canvas.toDataURL();
+                canvas.width = writingArea.clientWidth;
+                canvas.height = writingArea.clientHeight;
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                img.src = dataUrl;
+                img.onload = () => {
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                };
+            });
+        });
+    </script>
+</body>
+</html>
