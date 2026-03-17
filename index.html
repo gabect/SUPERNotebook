@@ -37,7 +37,8 @@
         .cover.back {
             left: 0;
             z-index: 1;
-            background-color: #000;
+            background-image: url('https://xinyiprint.com/wp-content/uploads/2023/12/composition-notebook-seamless-pattern-1024x576.webp');
+            background-size: cover;
         }
         .cover-front, .cover-back {
             position: absolute;
@@ -48,14 +49,16 @@
             backface-visibility: hidden;
         }
         .cover-front {
-            background-color: #000;
+            background-image: url('https://xinyiprint.com/wp-content/uploads/2023/12/composition-notebook-seamless-pattern-1024x576.webp');
+            background-size: cover;
             padding: 2rem;
             box-sizing: border-box;
             color: white;
         }
         .cover-back {
             transform: rotateY(180deg);
-            background-color: #000;
+            background-image: url('https://xinyiprint.com/wp-content/uploads/2023/12/composition-notebook-seamless-pattern-1024x576.webp');
+            background-size: cover;
         }
         .page {
             transform: rotateY(0deg);
@@ -88,12 +91,12 @@
         }
         @keyframes bookCover {
             30% { z-index: 999; }
-            100% { transform: rotateY(-180deg); }
+            100% { transform: rotateY(-180deg); z-index: -1; } /* Cambiado a -1 para asegurar que esté detrás */
         }
         @keyframes bookOpen {
             0% { transform: rotateY(-180deg); }
             30% { z-index: 999; }
-            100% { transform: rotateY(0deg); }
+            100% { transform: rotateY(0deg); z-index: 15; } /* Ajustado z-index */
         }
         .label {
             position: absolute;
@@ -137,6 +140,8 @@
         .lined {
             background: linear-gradient(to bottom, white 29px, #00b0d7 1px);
             background-size: 100% 30px;
+            height: 100%;
+            position: relative;
         }
         .lined::before {
             content: '';
@@ -169,8 +174,7 @@
                     <canvas id="drawing-canvas1"></canvas>
                 </div>
             </div>
-            <div class="page-back">
-                <div class="lined"></div>
+            <div class="page-back lined">
             </div>
         </div>
         <div class="page" id="page2" style="z-index:13">
@@ -180,8 +184,7 @@
                     <canvas id="drawing-canvas2"></canvas>
                 </div>
             </div>
-            <div class="page-back">
-                <div class="lined"></div>
+            <div class="page-back lined">
             </div>
         </div>
         <div class="page" id="page3" style="z-index:12">
@@ -191,8 +194,7 @@
                     <canvas id="drawing-canvas3"></canvas>
                 </div>
             </div>
-            <div class="page-back">
-                <div class="lined"></div>
+            <div class="page-back lined">
             </div>
         </div>
         <div class="page" id="page4" style="z-index:11">
@@ -202,8 +204,7 @@
                     <canvas id="drawing-canvas4"></canvas>
                 </div>
             </div>
-            <div class="page-back">
-                <div class="lined"></div>
+            <div class="page-back lined">
             </div>
         </div>
         <div class="page" id="page5" style="z-index:10">
@@ -213,8 +214,7 @@
                     <canvas id="drawing-canvas5"></canvas>
                 </div>
             </div>
-            <div class="page-back">
-                <div class="lined"></div>
+            <div class="page-back lined">
             </div>
         </div>
         <div class="cover front">
@@ -336,13 +336,15 @@
         // Auth listeners
         onAuthStateChanged(auth, (user) => {
             if (user) {
+                console.log('User logged in:', user.uid);
                 frontCover.classList.add('turn');
                 setTimeout(() => {
-                    frontCover.style.zIndex = 0;
+                    frontCover.style.zIndex = -1; // Asegurar que esté detrás
                     document.querySelector('.label').style.display = 'none';
                 }, 3000);
                 loadPages(user.uid);
             } else {
+                console.log('No user logged in');
                 // Mostrar login
                 frontCover.classList.remove('turn');
                 frontCover.style.zIndex = 15;
@@ -350,36 +352,57 @@
             }
         });
 
-        // Login buttons
-        document.getElementById('google-login').addEventListener('click', () => {
-            const provider = new GoogleAuthProvider();
-            signInWithPopup(auth, provider);
+        // Login buttons with error handling
+        document.getElementById('google-login').addEventListener('click', async () => {
+            try {
+                const provider = new GoogleAuthProvider();
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error('Google login error:', error);
+            }
         });
 
-        document.getElementById('facebook-login').addEventListener('click', () => {
-            const provider = new FacebookAuthProvider();
-            signInWithPopup(auth, provider);
+        document.getElementById('facebook-login').addEventListener('click', async () => {
+            try {
+                const provider = new FacebookAuthProvider();
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error('Facebook login error:', error);
+            }
         });
 
-        document.getElementById('apple-login').addEventListener('click', () => {
-            const provider = new OAuthProvider('apple.com');
-            signInWithPopup(auth, provider);
+        document.getElementById('apple-login').addEventListener('click', async () => {
+            try {
+                const provider = new OAuthProvider('apple.com');
+                provider.addScope('email name');
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error('Apple login error:', error);
+            }
         });
 
         document.getElementById('email-login').addEventListener('click', () => {
             document.getElementById('email-form').style.display = 'block';
         });
 
-        document.getElementById('sign-in').addEventListener('click', () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            signInWithEmailAndPassword(auth, email, password);
+        document.getElementById('sign-in').addEventListener('click', async () => {
+            try {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error('Email sign in error:', error);
+            }
         });
 
-        document.getElementById('sign-up').addEventListener('click', () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            createUserWithEmailAndPassword(auth, email, password);
+        document.getElementById('sign-up').addEventListener('click', async () => {
+            try {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                await createUserWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error('Email sign up error:', error);
+            }
         });
 
         function debounceSave(pageNum) {
@@ -430,7 +453,7 @@
             const pageToTurn = pagesArray.shift();
             pageToTurn.classList.add('turn');
             setTimeout(() => {
-                pageToTurn.style.zIndex = turned.length ? Math.min(...turned.map(p => parseInt(p.style.zIndex))) - 1 : 0;
+                pageToTurn.style.zIndex = turned.length ? Math.min(...turned.map(p => parseInt(p.style.zIndex))) - 1 : -1;
                 turned.push(pageToTurn);
             }, 3000);
         }
@@ -438,6 +461,7 @@
         function turnPrevious() {
             if (turned.length === 0) return;
             const pageToOpen = turned.pop();
+            pageToOpen.classList.remove('turn');
             pageToOpen.classList.add('open');
             setTimeout(() => {
                 let maxZ = 0;
